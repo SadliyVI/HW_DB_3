@@ -70,3 +70,42 @@ SELECT c.collection_name, t.track_name, s.singer_name
        JOIN singers_albums sa ON a.album_id = sa.album_id
        JOIN singers s ON sa.singer_id = s.singer_id
        WHERE s.singer_id = 1;
+
+-- Задание 4 
+
+-- 1.Названия альбомов, в которых присутствуют исполнители более чем одного жанра
+SELECT DISTINCT a.album_name
+  FROM albums a
+       JOIN singers_albums sa 
+       ON a.album_id = sa.album_id
+       JOIN singers s 
+       ON sa.singer_id = s.singer_id
+	   JOIN singers_genres sg 
+	   ON s.singer_id = sg.singer_id
+       GROUP BY a.album_name
+       HAVING COUNT(sg.genre_id) > 1;
+
+-- 2.Наименования треков, которые не входят в сборники
+SELECT t.track_name
+  FROM tracks t
+       LEFT JOIN collection_tracks ct ON t.track_id = ct.track_id
+       WHERE ct.collection_id IS NULL;
+
+-- 3.Исполнитель или исполнители, написавшие самый короткий по продолжительности трек
+SELECT s.singer_name, t.track_name, t.duration
+  FROM singers s
+       JOIN singers_albums sa ON s.singer_id = sa.singer_id
+       JOIN albums a ON sa.album_id = a.album_id
+       JOIN tracks t ON a.album_id = t.album_id
+       WHERE t.duration = (SELECT MIN(duration) FROM tracks); 
+
+-- 4.Названия альбомов, содержащих наименьшее количество треков
+WITH album_tracks_count AS (
+     SELECT a.album_name, COUNT(t.track_id) AS count_tracks
+       FROM albums a
+            JOIN tracks t ON a.album_id = t.album_id
+            GROUP BY a.album_name
+     )
+     SELECT album_name, count_tracks
+       FROM album_tracks_count
+      WHERE count_tracks = (SELECT MIN(count_tracks) FROM album_tracks_count);
