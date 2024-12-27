@@ -1,3 +1,6 @@
+-- HomeWork по теме «Продвинутая выборка данных»
+-- Задание 1
+
 -- Добавление жанров
 INSERT INTO genres (genre_id, genre_name)
 VALUES
