@@ -24,9 +24,16 @@ SELECT singer_name
  WHERE singer_name NOT LIKE '% %';
 
 -- 5.Название треков, которые содержат слово «мой» или «my»
+-- Вариант 1
 SELECT track_name
-  FROM tracks
- WHERE track_name ILIKE '%my%' OR track_name ILIKE '%мой%'; 
+FROM tracks
+WHERE track_name ~* '(^|[^a-zA-Zа-яА-Я])my([^a-zA-Zа-яА-Я]|$)|(^|[^a-zA-Zа-яА-Я])мой([^a-zA-Zа-яА-Я]|$)';
+
+-- Вариант 2
+SELECT track_name
+FROM tracks
+WHERE STRING_TO_ARRAY(LOWER(track_name), ' ') && ARRAY['my', 'мой']
+  
 
 -- Задание 3
 
@@ -84,7 +91,7 @@ SELECT DISTINCT a.album_name
        ON sa.singer_id = s.singer_id
 	   JOIN singers_genres sg 
 	   ON s.singer_id = sg.singer_id
-       GROUP BY a.album_name
+       GROUP BY a.album_name, sg.singer_id 
        HAVING COUNT(sg.genre_id) > 1;
 
 -- 2.Наименования треков, которые не входят в сборники
